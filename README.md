@@ -6,6 +6,7 @@ We copied from serenity based https://github.com/kremso/serenity and evolved it.
 Contact
 =======
 
-Original creator: kramar[dot]tomas[at]gmail.com
-Who copied: luizloja[at]gmail.com
+Original creator: kramar.tomas@gmail.com
+
+Who copied: luizloja@gmail.com
 
