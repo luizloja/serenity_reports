@@ -4,7 +4,9 @@ class String
   end
 
   def convert_newlines
-    tag = Thread.current[:serenity_report_format] == :docx ? '<w:br/>' : '<text:line-break/>'
+    format = Thread.current[:serenity_report_format]
+    return self if format == :xlsx
+    tag = format == :docx ? '<w:br/>' : '<text:line-break/>'
     gsub!("\n", tag)
     self
   end

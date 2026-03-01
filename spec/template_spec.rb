@@ -167,4 +167,69 @@ module SerenityReport
       expect(tmp('output_footer.docx')).to contain_in('word/footer1.xml', 'captain')
     end
   end
+
+  describe XlsxProcessor do
+    it "processes a document with simple variable substitution" do
+      @name = 'Malcolm Reynolds'
+      @title = 'captain'
+
+      template = Template.new(fixture('xlsx/variables.xlsx'), tmp('output_variables.xlsx'))
+      template.process binding
+
+      expect(tmp('output_variables.xlsx')).to contain_in('xl/sharedStrings.xml', 'Malcolm Reynolds')
+      expect(tmp('output_variables.xlsx')).to contain_in('xl/sharedStrings.xml', 'captain')
+    end
+
+    it "unrolls a simple for loop" do
+      @crew = %w{'River', 'Jayne', 'Wash'}
+
+      template = Template.new(fixture('xlsx/loop.xlsx'), tmp('output_loop.xlsx'))
+      template.process binding
+    end
+
+    it "unrolls an advanced loop with tables" do
+      @ships = [Ship.new('Firefly', 'transport'), Ship.new('Colonial', 'battle')]
+
+      template = Template.new(fixture('xlsx/loop_table.xlsx'), tmp('output_loop_table.xlsx'))
+      template.process binding
+
+      ['Firefly', 'transport', 'Colonial', 'battle'].each do |text|
+        expect(tmp('output_loop_table.xlsx')).to contain_in('xl/sharedStrings.xml', text)
+      end
+    end
+
+    it "processes an advanced document" do
+      PersonXlsx = Struct.new(:nome) unless defined?(PersonXlsx)
+      @persons = [
+        PersonXlsx.new('Malcolm'),
+        PersonXlsx.new('River'),
+        PersonXlsx.new('Jay')
+      ]
+
+      template = Template.new(fixture('xlsx/advanced.xlsx'), tmp('output_advanced.xlsx'))
+      template.process binding
+
+      ['Malcolm', 'River', 'Jay'].each do |text|
+        expect(tmp('output_advanced.xlsx')).to contain_in('xl/sharedStrings.xml', text)
+      end
+    end
+
+    it "processes a greek document" do
+      @h = {'ελληνικο' => 'κειμενο'}
+      template = Template.new(fixture('xlsx/greek.xlsx'), tmp('output_greek.xlsx'))
+      template.process binding
+      expect(tmp('output_greek.xlsx')).to contain_in('xl/sharedStrings.xml', 'κειμενο')
+    end
+
+    it "loops and generates table rows" do
+      @ships = [Ship.new('Firefly', 'transport'), Ship.new('Colonial', 'battle')]
+
+      template = Template.new(fixture('xlsx/table_rows.xlsx'), tmp('output_table_rows.xlsx'))
+      template.process binding
+
+      ['Firefly', 'transport', 'Colonial', 'battle'].each do |text|
+        expect(tmp('output_table_rows.xlsx')).to contain_in('xl/sharedStrings.xml', text)
+      end
+    end
+  end
 end
