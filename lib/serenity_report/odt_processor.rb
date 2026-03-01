@@ -80,15 +80,41 @@ module SerenityReport
           objects_by_dir.each do |obj_dir, obj_files|
             count = obj_counter[obj_dir]
 
+            # Find the writer table linked to this chart via draw:notify-on-update-of-ranges
+            linked_table = nil
+            out.scan(/<draw:frame[^>]*>.*?<\/draw:frame>/m) do |frame|
+              if frame.include?("./#{obj_dir}") && frame =~ /draw:notify-on-update-of-ranges="([^"]+)"/
+                linked_table = $1
+                break
+              end
+            end
+
             # Rename each draw:frame's object references to a unique object dir
             iteration = 0
             out = out.gsub(/<draw:frame[^>]*>.*?<\/draw:frame>/m) do |frame|
               if frame.include?("./#{obj_dir}")
                 iteration += 1
                 new_obj_dir = iteration == 1 ? obj_dir : "Object #{max_obj_num + iteration - 1}"
-                frame.gsub(obj_dir, new_obj_dir)
+                result = frame.gsub(obj_dir, new_obj_dir)
+                if linked_table && iteration > 1
+                  result = result.gsub("\"#{linked_table}\"", "\"#{linked_table}_#{iteration}\"")
+                end
+                result
               else
                 frame
+              end
+            end
+
+            # Rename duplicated writer tables so each chart links to its own data
+            if linked_table && count > 1
+              table_iteration = 0
+              out = out.gsub(/<table:table\b[^>]*\btable:name="#{Regexp.escape(linked_table)}"/) do |match|
+                table_iteration += 1
+                if table_iteration > 1
+                  match.sub("table:name=\"#{linked_table}\"", "table:name=\"#{linked_table}_#{table_iteration}\"")
+                else
+                  match
+                end
               end
             end
 
@@ -101,6 +127,12 @@ module SerenityReport
                 file_part = name.split('/').last
                 result = obj_results["#{obj_dir}__#{n}/#{file_part}"]
                 next unless result
+
+                if linked_table && n > 1 && file_part == 'content.xml'
+                  result = result.gsub(linked_table, "#{linked_table}_#{n}")
+                end
+
+                result = result.gsub('[*]', '') if result.include?('[*]')
 
                 result.force_encoding Encoding.default_external
                 @tmpfiles << (file = Tempfile.new("serenity_report"))
@@ -137,6 +169,17 @@ module SerenityReport
               end
             end
           end
+        end
+
+        if xml_file == 'content.xml'
+          # Hide writer tables marked with [*] prefix (hidden chart data tables)
+          hidden_idx = 0
+          out = out.gsub(/<table:table\b[^>]*\btable:name="\[\*\][^"]*"[^>]*>.*?<\/table:table>/m) do |table|
+            hidden_idx += 1
+            "<text:section text:name=\"HiddenDataTable#{hidden_idx}\" text:display=\"none\">#{table}</text:section>"
+          end
+          # Strip [*] from table names and remaining references (e.g., draw:notify-on-update-of-ranges)
+          out = out.gsub('[*]', '')
         end
 
         @tmpfiles << (file = Tempfile.new("serenity_report"))

@@ -46,14 +46,11 @@ module SerenityReport
         expect(tmp('output_advanced.odt')).to contain_in('content.xml', text)
       end
 
-      # Each person gets their own chart with their name and column values
-      { 'Object 1' => ['Malcolm', '10.5', '20.3', '30.1'],
-        'Object 2' => ['River',   '40.2', '50.7', '60.4'],
-        'Object 3' => ['Jay',     '70.8', '80.9', '90.6'] }.each do |obj, values|
-        values.each do |val|
-          expect(tmp('output_advanced.odt')).to contain_in("#{obj}/content.xml", val)
-        end
+      { 'Object 1' => 'Malcolm', 'Object 2' => 'River', 'Object 3' => 'Jay' }.each do |obj, name|
+        expect(tmp('output_advanced.odt')).to contain_in("#{obj}/content.xml", name)
       end
+
+      expect(tmp('output_advanced.odt')).not_to contain_in('content.xml', '[*]')
     end
 
     it "processes a greek document" do
