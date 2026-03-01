@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   class DocxProcessor < BaseProcessor
     def process
       xml_files = ['word/document.xml']

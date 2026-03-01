@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   module Debug
     def debug?
       false
@@ -9,7 +9,7 @@ module Serenity
     end
 
     def debug_file_name
-      "serenity_debug_#{rand(100)}.rb"
+      "serenity_report_debug_#{rand(100)}.rb"
     end
 
     def debug_dir

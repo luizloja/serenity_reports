@@ -1,6 +1,6 @@
 require 'tempfile'
 
-module Serenity
+module SerenityReport
   class BaseProcessor
     def initialize(zipfile, context, tmpfiles)
       @zipfile = zipfile
@@ -22,7 +22,7 @@ module Serenity
       out = odteruby.evaluate(@context)
       out.force_encoding Encoding.default_external
 
-      @tmpfiles << (file = Tempfile.new("serenity"))
+      @tmpfiles << (file = Tempfile.new("serenity_report"))
       file << out
       file.close
       @zipfile.replace(xml_file, file.path)

@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   class ImagesProcessor
     include Debug
 

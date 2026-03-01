@@ -2,10 +2,10 @@
 
 $:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
-require 'serenity'
+require 'serenity_report'
 
 class Showcase
-  include Serenity::Generator
+  include SerenityReport::Generator
 
   Person = Struct.new(:name, :items)
   Item = Struct.new(:name, :usage)

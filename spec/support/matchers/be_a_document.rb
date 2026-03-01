@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   RSpec::Matchers.define :be_a_document do
     match do |actual|
       File.exist? actual

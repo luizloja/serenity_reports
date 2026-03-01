@@ -1,7 +1,7 @@
 require 'zip'
 require 'fileutils'
 
-module Serenity
+module SerenityReport
   class Template
     attr_accessor :template
 
@@ -13,7 +13,7 @@ module Serenity
     def process(context)
       format = @template.end_with?('.docx') ? :docx : :odt
       tmpfiles = []
-      Thread.current[:serenity_format] = format
+      Thread.current[:serenity_report_format] = format
 
       Zip::File.open(@template) do |zipfile|
         processor = if format == :odt
@@ -24,7 +24,7 @@ module Serenity
         processor.process
       end
     ensure
-      Thread.current[:serenity_format] = nil
+      Thread.current[:serenity_report_format] = nil
     end
   end
 end

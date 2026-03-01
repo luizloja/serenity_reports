@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-module Serenity
+module SerenityReport
   describe OdtEruby do
     before(:each) do
       name = 'test_name'

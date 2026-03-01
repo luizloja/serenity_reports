@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-module Serenity
+module SerenityReport
   Node = Struct.new(:text, :type)
 
   describe XmlReader do

@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   class OdtProcessor < BaseProcessor
     def process
       # Pre-read embedded object templates for inline processing
@@ -63,11 +63,11 @@ module Serenity
         # Inject inline processing for embedded objects at their draw:object
         # reference points so loop variables are in scope during evaluation
         if xml_file == 'content.xml' && !processors.empty?
-          @context.local_variable_set(:_serenity_processors, processors)
+          @context.local_variable_set(:_serenity_report_processors, processors)
 
           objects_by_dir.each do |obj_dir, _|
             ref_pattern = /(<draw:object[^>]*?xlink:href="\.\/#{Regexp.escape(obj_dir)}"[^>]*?\/>.*?<\/draw:frame>)/m
-            content = content.sub(ref_pattern, "\\1{% _serenity_processors['#{obj_dir}'].call(binding) %}")
+            content = content.sub(ref_pattern, "\\1{% _serenity_report_processors['#{obj_dir}'].call(binding) %}")
           end
         end
 
@@ -103,7 +103,7 @@ module Serenity
                 next unless result
 
                 result.force_encoding Encoding.default_external
-                @tmpfiles << (file = Tempfile.new("serenity"))
+                @tmpfiles << (file = Tempfile.new("serenity_report"))
                 file << result
                 file.close
 
@@ -128,7 +128,7 @@ module Serenity
                 end
 
                 if new_name
-                  @tmpfiles << (file = Tempfile.new("serenity"))
+                  @tmpfiles << (file = Tempfile.new("serenity_report"))
                   file.binmode
                   file << data
                   file.close
@@ -139,7 +139,7 @@ module Serenity
           end
         end
 
-        @tmpfiles << (file = Tempfile.new("serenity"))
+        @tmpfiles << (file = Tempfile.new("serenity_report"))
         file << out
         file.close
         @zipfile.replace(xml_file, file.path)
@@ -167,7 +167,7 @@ module Serenity
         end
 
         manifest = manifest.sub("</manifest:manifest>", "#{new_entries}</manifest:manifest>")
-        @tmpfiles << (file = Tempfile.new("serenity"))
+        @tmpfiles << (file = Tempfile.new("serenity_report"))
         file << manifest
         file.close
         @zipfile.replace('META-INF/manifest.xml', file.path)

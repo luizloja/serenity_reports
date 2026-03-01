@@ -9,6 +9,8 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+*.docx
+*.odt
 
 # Used by dotenv library to load environment variables.
 # .env
@@ -23,6 +25,7 @@ build/
 *.bridgesupport
 build-iPhoneOS/
 build-iPhoneSimulator/
+
 
 ## Specific to RubyMotion (use of CocoaPods):
 #

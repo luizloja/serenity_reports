@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   class NodeType
     TAG = 1
     CONTROL = 2

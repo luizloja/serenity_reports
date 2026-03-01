@@ -1,14 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-module Serenity
+module SerenityReport
   describe Generator do
-    after(:each) do
-      FileUtils.rm(fixture('odt/loop_output.odt'))
-    end
-
     it 'makes context from instance variables and runs the provided template' do
       class GeneratorClient
-        include Serenity::Generator
+        include SerenityReport::Generator
 
         def generate_odt
           @crew = ['Mal', 'Inara', 'Wash', 'Zoe']
@@ -19,7 +15,7 @@ module Serenity
 
       client = GeneratorClient.new
       expect { client.generate_odt }.not_to raise_error
-      expect(fixture('odt/loop_output.odt')).to be_a_document
+      expect(tmp('loop_output.odt')).to be_a_document
     end
   end
 end

@@ -1,4 +1,4 @@
-module Serenity
+module SerenityReport
   class OdtEruby
     include Debug
 

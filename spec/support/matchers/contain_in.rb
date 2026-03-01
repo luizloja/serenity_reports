@@ -2,7 +2,7 @@
 
 require "zip"
 
-module Serenity
+module SerenityReport
   RSpec::Matchers.define :contain_in do |xml_file, expected|
     match do |actual|
       content = Zip::File.open(actual) { |zip_file| zip_file.read(xml_file) }
