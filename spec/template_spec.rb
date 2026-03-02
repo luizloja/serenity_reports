@@ -233,6 +233,41 @@ module SerenityReport
     end
   end
 
+  describe 'PDF conversion' do
+    it "converts an ODT document to PDF" do
+      @name = 'Malcolm Reynolds'
+      @title = 'captain'
+
+      template = Template.new(fixture('odt/variables.odt'), tmp('output_variables.pdf'))
+      template.process binding
+
+      expect(tmp('output_variables.pdf')).to be_a_document
+      expect(File.exist?(tmp('output_variables.odt'))).to be false
+    end
+
+    it "converts a DOCX document to PDF" do
+      @name = 'Malcolm Reynolds'
+      @title = 'captain'
+
+      template = Template.new(fixture('docx/variables.docx'), tmp('output_variables_docx.pdf'))
+      template.process binding
+
+      expect(tmp('output_variables_docx.pdf')).to be_a_document
+      expect(File.exist?(tmp('output_variables_docx.docx'))).to be false
+    end
+
+    it "raises an error when no converter is found" do
+      @name = 'test'
+
+      template = Template.new(fixture('odt/variables.odt'), tmp('output_pdf_none.pdf'))
+      allow(template).to receive(:which).and_return(nil)
+
+      expect { template.process binding }.to raise_error(RuntimeError, /No PDF converter found/)
+
+      FileUtils.rm_f(tmp('output_pdf_none.odt'))
+    end
+  end
+
   describe XlsxProcessor do
     it "processes a document with simple variable substitution" do
       @name = 'Malcolm Reynolds'

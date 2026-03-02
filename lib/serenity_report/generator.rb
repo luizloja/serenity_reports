@@ -9,13 +9,14 @@ module SerenityReport
 
     private
 
-    def output_name input
+    def output_name input, output_ext: nil
       ext = File.extname(input)
       base = File.basename(input, ext)
       ext = '.odt' if ext.empty?
+      out_ext = output_ext || ext
       tmp_dir = File.expand_path('../../tmp', __dir__)
       FileUtils.mkdir_p(tmp_dir)
-      File.join(tmp_dir, "#{base}_output#{ext}")
+      File.join(tmp_dir, "#{base}_output#{out_ext}")
     end
   end
 end
