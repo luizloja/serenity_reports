@@ -168,6 +168,71 @@ module SerenityReport
     end
   end
 
+  describe OdsProcessor do
+    it "processes a document with simple variable substitution" do
+      @name = 'Malcolm Reynolds'
+      @title = 'captain'
+
+      template = Template.new(fixture('ods/variables.ods'), tmp('output_variables.ods'))
+      template.process binding
+
+      expect(tmp('output_variables.ods')).to contain_in('content.xml', 'Malcolm Reynolds')
+      expect(tmp('output_variables.ods')).to contain_in('content.xml', 'captain')
+    end
+
+    it "unrolls a simple for loop" do
+      @crew = %w{'River', 'Jayne', 'Wash'}
+
+      template = Template.new(fixture('ods/loop.ods'), tmp('output_loop.ods'))
+      template.process binding
+    end
+
+    it "unrolls an advanced loop with tables" do
+      @ships = [Ship.new('Firefly', 'transport'), Ship.new('Colonial', 'battle')]
+
+      template = Template.new(fixture('ods/loop_table.ods'), tmp('output_loop_table.ods'))
+      template.process binding
+
+      ['Firefly', 'transport', 'Colonial', 'battle'].each do |text|
+        expect(tmp('output_loop_table.ods')).to contain_in('content.xml', text)
+      end
+    end
+
+    it "processes an advanced document" do
+      PersonOds = Struct.new(:nome) unless defined?(PersonOds)
+      @persons = [
+        PersonOds.new('Malcolm'),
+        PersonOds.new('River'),
+        PersonOds.new('Jay')
+      ]
+
+      template = Template.new(fixture('ods/advanced.ods'), tmp('output_advanced.ods'))
+      template.process binding
+
+      ['Malcolm', 'River', 'Jay'].each do |text|
+        expect(tmp('output_advanced.ods')).to contain_in('content.xml', text)
+      end
+    end
+
+    it "processes a greek document" do
+      @h = {'ελληνικο' => 'κειμενο'}
+      template = Template.new(fixture('ods/greek.ods'), tmp('output_greek.ods'))
+      template.process binding
+      expect(tmp('output_greek.ods')).to contain_in('content.xml', 'κειμενο')
+    end
+
+    it "loops and generates table rows" do
+      @ships = [Ship.new('Firefly', 'transport'), Ship.new('Colonial', 'battle')]
+
+      template = Template.new(fixture('ods/table_rows.ods'), tmp('output_table_rows.ods'))
+      template.process binding
+
+      ['Firefly', 'transport', 'Colonial', 'battle'].each do |text|
+        expect(tmp('output_table_rows.ods')).to contain_in('content.xml', text)
+      end
+    end
+  end
+
   describe XlsxProcessor do
     it "processes a document with simple variable substitution" do
       @name = 'Malcolm Reynolds'

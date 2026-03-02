@@ -15,6 +15,8 @@ module SerenityReport
         :xlsx
       elsif @template.end_with?('.docx')
         :docx
+      elsif @template.end_with?('.ods')
+        :ods
       else
         :odt
       end
@@ -29,6 +31,8 @@ module SerenityReport
           DocxProcessor.new(zipfile, context, tmpfiles)
         when :xlsx
           XlsxProcessor.new(zipfile, context, tmpfiles)
+        when :ods
+          OdsProcessor.new(zipfile, context, tmpfiles)
         end
         processor.process
       end
