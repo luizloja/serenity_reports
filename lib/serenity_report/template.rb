@@ -43,7 +43,7 @@ module SerenityReport
         processor.process
       end
 
-      repack_zip(@template) if format == :xlsx || @pdf_output
+      repack_zip(@template)
       convert_to_pdf if @pdf_output
     ensure
       Thread.current[:serenity_report_format] = nil
@@ -129,8 +129,13 @@ module SerenityReport
       tmp_path = "#{path}.tmp"
       Zip::OutputStream.open(tmp_path) do |out|
         Zip::File.open(path) do |zf|
+          # ODF spec: mimetype must be first entry, stored uncompressed
+          if zf.find_entry('mimetype')
+            out.put_next_entry('mimetype', nil, nil, Zip::Entry::STORED)
+            out.write(zf.read('mimetype'))
+          end
           zf.entries.each do |entry|
-            next if entry.directory?
+            next if entry.directory? || entry.name == 'mimetype'
             out.put_next_entry(entry.name)
             out.write(zf.read(entry.name))
           end

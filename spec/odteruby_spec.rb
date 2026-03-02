@@ -97,5 +97,62 @@ module SerenityReport
 
       run_spec template, expected, binding
     end
+
+    it 'handles frozen string values without raising FrozenError' do
+      value = 'frozen <value>'.freeze
+
+      template = '<text:p>{%= value %}</text:p>'
+      expected = '<text:p>frozen &lt;value&gt;</text:p>'
+
+      run_spec template, expected, binding
+    end
+
+    it 'handles frozen strings with newlines' do
+      value = "line1\nline2".freeze
+
+      template = '<text:p>{%= value %}</text:p>'
+      expected = '<text:p>line1<text:line-break/>line2</text:p>'
+
+      run_spec template, expected, binding
+    end
+
+    it 'handles frozen strings in code lines with XML entities' do
+      code = CodeLine.new('x &amp; y &lt; z'.freeze)
+      expect { code.to_buf }.not_to raise_error
+      expect(code.to_buf).to include('x & y < z')
+    end
+
+    it 'handles frozen strings in literal lines' do
+      line = LiteralLine.new(' @value &amp; more '.freeze)
+      expect { line.to_buf }.not_to raise_error
+      expect(line.to_buf).to include('@value & more')
+    end
+
+    it 'handles integer values via to_s producing frozen strings' do
+      number = 42
+
+      template = '<text:p>{%= number %}</text:p>'
+      expected = '<text:p>42</text:p>'
+
+      run_spec template, expected, binding
+    end
+
+    it 'handles nil values via to_s producing frozen strings' do
+      value = nil
+
+      template = '<text:p>{%= value %}</text:p>'
+      expected = '<text:p></text:p>'
+
+      run_spec template, expected, binding
+    end
+
+    it 'handles symbol to_s producing frozen strings' do
+      value = :hello
+
+      template = '<text:p>{%= value %}</text:p>'
+      expected = '<text:p>hello</text:p>'
+
+      run_spec template, expected, binding
+    end
   end
 end

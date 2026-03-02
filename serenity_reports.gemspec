@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "serenity_reports"
-  s.version     = "0.2.0"
+  s.version     = "0.3.0"
   s.authors     = ["Tomas Kramar", "Luiz Loja"]
   s.email       = ["kramar.tomas@gmail.com", "luizloja@gmail.com"]
   s.homepage    = "https://github.com/luizloja/serenity_reports"

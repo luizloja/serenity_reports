@@ -180,6 +180,20 @@ module SerenityReport
           end
           # Strip [*] from table names and remaining references (e.g., draw:notify-on-update-of-ranges)
           out = out.gsub('[*]', '')
+
+          # Deduplicate table names: ODF requires unique table:name attributes.
+          # When templates with tables are expanded inside loops, duplicates appear.
+          table_name_counts = Hash.new(0)
+          out = out.gsub(/<table:table\b[^>]*\btable:name="([^"]+)"/) do |match|
+            name = $1
+            table_name_counts[name] += 1
+            if table_name_counts[name] > 1
+              match.sub("table:name=\"#{name}\"",
+                "table:name=\"#{name}_#{table_name_counts[name]}\"")
+            else
+              match
+            end
+          end
         end
 
         @tmpfiles << (file = Tempfile.new("serenity_report"))

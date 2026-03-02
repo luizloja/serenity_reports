@@ -86,6 +86,46 @@ module SerenityReport
       template.process(binding)
       expect(tmp('output_footer.odt')).to contain_in('styles.xml', 'captain')
     end
+
+    it "deduplicates table names when tables are inside loops" do
+      @ships = [Ship.new('Firefly', 'transport'), Ship.new('Colonial', 'battle')]
+
+      template = Template.new(fixture('odt/loop_table.odt'), tmp('output_dedup_tables.odt'))
+      template.process binding
+
+      content = Zip::File.open(tmp('output_dedup_tables.odt')) { |z| z.read('content.xml') }
+      table_names = content.scan(/table:name="([^"]+)"/).flatten
+      expect(table_names).to eq(table_names.uniq), "Expected unique table names but found duplicates: #{table_names}"
+    end
+
+    it "produces a ZIP with no data descriptor flags" do
+      @name = 'Malcolm Reynolds'
+      @title = 'captain'
+
+      template = Template.new(fixture('odt/variables.odt'), tmp('output_zip_flags.odt'))
+      template.process binding
+
+      Zip::File.open(tmp('output_zip_flags.odt')) do |zf|
+        zf.entries.each do |entry|
+          flag = entry.gp_flags & 0x0008
+          expect(flag).to eq(0), "Entry '#{entry.name}' has data descriptor flag set (gp_flags=0x#{entry.gp_flags.to_s(16)})"
+        end
+      end
+    end
+
+    it "stores mimetype as first entry uncompressed in ODT" do
+      @name = 'Malcolm Reynolds'
+      @title = 'captain'
+
+      template = Template.new(fixture('odt/variables.odt'), tmp('output_mimetype.odt'))
+      template.process binding
+
+      Zip::File.open(tmp('output_mimetype.odt')) do |zf|
+        first_entry = zf.entries.first
+        expect(first_entry.name).to eq('mimetype')
+        expect(first_entry.compression_method).to eq(Zip::Entry::STORED)
+      end
+    end
   end
 
   describe DocxProcessor do
