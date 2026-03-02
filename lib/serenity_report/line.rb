@@ -44,7 +44,7 @@ module SerenityReport
     end
 
     def escape_code code
-      code.mgsub! [[/&apos;/, "'"], [/&gt;/, '>'], [/&lt/, '<'], [/&quot;/, '"'], [/&amp;/, '&']]
+      code.gsub(/&apos;|&gt;|&lt;|&quot;|&amp;/, '&apos;' => "'", '&gt;' => '>', '&lt;' => '<', '&quot;' => '"', '&amp;' => '&')
     end
   end
 
